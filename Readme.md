@@ -18,3 +18,6 @@ Automate Jenkins installation on AWS EC2 using Bash.
 chmod +x install-jenkins.sh
 
 sudo ./install-jenkins.sh
+
+## New Feature
+
