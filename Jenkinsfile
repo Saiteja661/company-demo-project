@@ -7,6 +7,12 @@ pipeline {
     environment {
         COURSE = "Jenkins"
         VERSION = "1.0"
+        PERSON = "${params.PERSON}"
+        BIOGRAPHY = "${params.BIOGRAPHY}"
+        TOGGLE = "${params.DEPLOY}"
+        CHOICE = "${params.CHOICE}"
+        PASSWORD = "${params.PASSWORD}"
+        DEPLOY = "${params.DEPLOY}"
     }
 
     options {
@@ -44,7 +50,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-               script{
+            script{
                     sh """
                         echo "Testing"
                         echo "Hello ${params.PERSON}"
