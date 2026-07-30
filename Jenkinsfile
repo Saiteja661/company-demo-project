@@ -1,105 +1,97 @@
 pipeline {
+    agent {
+        node {
+            label ${params.NODE_LABEL} 
+        } 
+    }
+    environment {
+        COURSE = "Jenkins"
+        VERSION = "1.0"
+    }
 
-    agent any
-
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 5, unit: 'MINUTES')
+    }
+    parameters {
+        string(name: 'NODE_LABEL', defaultValue: 'any', description: 'Which node should I run on?')
+        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+        text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
+        choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+        password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    }
+    
     stages {
-
-        stage('Checkout') {
-
+        stage ('Checkout') {
             steps {
-
                 echo 'Checking out source code'
-
                 checkout scm
-
             }
-
         }
 
         stage('Build') {
-
             steps {
-
-                echo 'Build Started'
-
-                sh '''
-                    pwd
-
-                    ls -la
-
-                    ls -la Application
-                '''
-
+                script{
+                    sh """
+                        echo "Building"
+                        echo $VERSION
+                        echo $COURSE
+                        sleep 10
+                    """
+                }
             }
-
         }
-
         stage('Test') {
-
             steps {
-
-                echo 'Testing Application'
-
-                sh '''
-
-                    if [ -f Application/index.html ]
-                    then
-                        echo "Application Found"
-
-                    else
-
-                        echo "Application Missing"
-
-                        exit 1
-
-                    fi
-
-                '''
-
+               script{
+                    sh """
+                        echo "Testing"
+                        echo "Hello ${params.PERSON}"
+                        echo "Biography: ${params.BIOGRAPHY}"
+                        echo "Toggle: ${params.TOGGLE}"
+                        echo "Choice: ${params.DEPLOY}" 
+                        echo "Password: ${params.PASSWORD}"
+                    """
+                }
             }
-
         }
-
         stage('Deploy') {
-
-            steps {
-
-                echo 'Deploying Application'
-
-                sh '''
-
-                    chmod +x deploy.sh
-
-                    ./deploy.sh
-
-                '''
-
+            when {
+                expression { "${params.DEPLOY}" == "true" }
             }
 
+            /* input {
+                message "Should we continue?"
+                ok "Yes, we should."
+                submitter "alice,bob"
+                parameters {
+                    string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+                }
+            } */
+            steps {
+                script{
+                    sh """
+                        echo "Deploying"
+                    """
+                }
+            }
         }
-
     }
 
-    post {
-
+    // post build
+    post { 
+        always { 
+            echo 'I will always say Hello again!'
+            ${}
+        }
         success {
-
-            echo 'Deployment Completed Successfully'
-
+            echo "pipeline success"
+            
         }
-
         failure {
-
-            echo 'Deployment Failed'
-
+            echo "pipeline failure"
+            
         }
-
-        always {
-
-            echo 'Pipeline Finished'
-
-        }
-
     }
-
 }
